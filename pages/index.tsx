@@ -10,13 +10,13 @@ export const getStaticProps: GetStaticProps<ConnectionStatus> = async () => {
     const client = await clientPromise;
     return {
       props: { isConnected: true },
-      revalidate: 60,
+      revalidate: 90,
     };
   } catch (e) {
     console.error(e);
     return {
       props: { isConnected: false },
-      revalidate: 60,
+      revalidate: 90,
     };
   }
 };
