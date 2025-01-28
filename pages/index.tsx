@@ -1,29 +1,29 @@
-import client from "@/lib/mongodb";
-import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
+import clientPromise from "@/lib/mongodb";
+import type { InferGetStaticPropsType, GetStaticProps } from "next";
 
 type ConnectionStatus = {
   isConnected: boolean;
 };
 
-export const getServerSideProps: GetServerSideProps<
-  ConnectionStatus
-> = async () => {
+export const getStaticProps: GetStaticProps<ConnectionStatus> = async () => {
   try {
-    await client.connect();
+    const client = await clientPromise;
     return {
       props: { isConnected: true },
+      revalidate: 60,
     };
   } catch (e) {
     console.error(e);
     return {
       props: { isConnected: false },
+      revalidate: 60,
     };
   }
 };
 
 export default function Home({
   isConnected,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+}: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-8">
       <h1 className="text-4xl font-bold text-gray-900 mb-8">

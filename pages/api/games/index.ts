@@ -1,4 +1,4 @@
-import client from "../../../lib/mongodb";
+import clientPromise from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -6,7 +6,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    await client.connect();
+    const client = await clientPromise;
     const db = client.db(process.env.DB);
 
     const collections = await db.listCollections().toArray();
@@ -25,7 +25,5 @@ export default async function handler(
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await client.close();
   }
 }

@@ -1,4 +1,4 @@
-import client from "../../../lib/mongodb";
+import clientPromise from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -8,9 +8,10 @@ export default async function handler(
   const { game } = req.query;
 
   try {
-    await client.connect();
+    const client = await clientPromise; // Use the cached connection
     const db = client.db(process.env.DB);
 
+    // Check if the collection exists
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map((col) => col.name);
 
@@ -19,6 +20,7 @@ export default async function handler(
       return;
     }
 
+    // Fetch data from the specific collection
     const collection = db.collection(game as string);
     const gameData = await collection.find({}).toArray();
 
@@ -26,7 +28,5 @@ export default async function handler(
   } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
-  } finally {
-    await client.close();
   }
 }
