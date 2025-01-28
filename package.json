@@ -6,6 +6,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
     "mongodb": "^6.5.0",
     "mongoose": "^8.9.5",
     "next": "latest",
