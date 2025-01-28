@@ -1,4 +1,5 @@
-import clientPromise from "../../../lib/mongodb";
+import { MongoError } from "mongodb";
+import { getMongoClient } from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -8,25 +9,27 @@ export default async function handler(
   const { game } = req.query;
 
   try {
-    const client = await clientPromise; // Use the cached connection
+    const client = await getMongoClient();
     const db = client.db(process.env.DB);
 
-    // Check if the collection exists
-    const collections = await db.listCollections().toArray();
-    const collectionNames = collections.map((col) => col.name);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Query timeout")), 9000)
+    );
 
-    if (!collectionNames.includes(game as string)) {
-      res.status(404).json({ error: "Game not found" });
-      return;
-    }
+    const queryPromise = (async () => {
+      const collection = db.collection(game as string);
+      return await collection.find({}).toArray();
+    })();
 
-    // Fetch data from the specific collection
-    const collection = db.collection(game as string);
-    const gameData = await collection.find({}).toArray();
-
+    const gameData = await Promise.race([queryPromise, timeoutPromise]);
     res.status(200).json(gameData);
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    const mongoError = error as MongoError;
+    console.error("Error:", mongoError);
+    if (mongoError.message === "Query timeout") {
+      res.status(504).json({ error: "Request timeout" });
+    } else {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 }
