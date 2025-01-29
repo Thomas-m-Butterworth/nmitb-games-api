@@ -22,11 +22,30 @@ function runMiddleware(
   });
 }
 
+const validateApiKey = (req: NextApiRequest, res: NextApiResponse) => {
+  const apiKey = req.headers["x-api-key"];
+  const validApiKey = process.env.TRUSTED_API_KEY;
+
+  if (req.method === "GET") {
+    return true;
+  }
+
+  if (apiKey === validApiKey) {
+    return true;
+  } else {
+    res.status(403).json({ error: "Forbidden: Invalid API key" });
+    return false;
+  }
+};
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   await runMiddleware(req, res, cors);
+  if (req.method !== "GET" && !validateApiKey(req, res)) {
+    return;
+  }
 
   try {
     const client = await getMongoClient();
@@ -49,6 +68,11 @@ export default async function handler(
       );
 
       res.status(200).json(gamesData);
+    } else if (req.method === "POST") {
+      const gameData = req.body;
+      const collectionName = gameData.collectionName;
+      const result = await db.collection(collectionName).insertOne(gameData);
+      res.status(201).json(result);
     } else {
       res.status(405).json({ error: "Method not allowed" });
     }
