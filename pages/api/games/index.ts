@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import Cors from "cors";
 
 const cors = Cors({
-  methods: ["GET"],
+  methods: ["GET", "POST"],
   origin: "*",
 });
 
@@ -22,49 +22,38 @@ function runMiddleware(
   });
 }
 
-export type MongoError = {
-  message: string;
-  code?: number;
-  name?: string;
-};
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   await runMiddleware(req, res, cors);
+
   try {
     const client = await getMongoClient();
     const db = client.db(process.env.DB);
 
-    const collections = await db.listCollections().toArray();
-    const gamesData: Record<string, any> = {};
+    if (req.method === "GET") {
+      const collections = await db.listCollections().toArray();
+      const gamesData: Record<string, any> = {};
 
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Query timeout")), 9000)
-    );
+      await Promise.all(
+        collections.map(async (collection) => {
+          const collectionName = collection.name;
+          const collectionData = await db
+            .collection(collectionName)
+            .find({})
+            .limit(100)
+            .toArray();
+          gamesData[collectionName] = collectionData;
+        })
+      );
 
-    const queryPromise = Promise.all(
-      collections.map(async (collection) => {
-        const collectionName = collection.name;
-        const collectionData = await db
-          .collection(collectionName)
-          .find({})
-          .limit(100)
-          .toArray();
-        gamesData[collectionName] = collectionData;
-      })
-    );
-
-    await Promise.race([queryPromise, timeoutPromise]);
-    res.status(200).json(gamesData);
-  } catch (error) {
-    const mongoError = error as MongoError;
-    console.error("Error:", mongoError);
-    if (mongoError.message === "Query timeout") {
-      res.status(504).json({ error: "Request timeout" });
+      res.status(200).json(gamesData);
     } else {
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(405).json({ error: "Method not allowed" });
     }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
