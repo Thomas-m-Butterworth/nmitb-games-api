@@ -1,9 +1,10 @@
+import { ObjectId } from "mongodb";
 import { getMongoClient } from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import Cors from "cors";
 
 const cors = Cors({
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "DELETE"],
   origin: "*",
 });
 
@@ -73,6 +74,25 @@ export default async function handler(
       const collectionName = gameData.collectionName;
       const result = await db.collection(collectionName).insertOne(gameData);
       res.status(201).json(result);
+    } else if (req.method === "DELETE") {
+      const { collectionName, id } = req.body;
+      const idString = id.toString();
+
+      if (!ObjectId.isValid(idString)) {
+        res.status(400).json({ error: "Invalid ID" });
+        return;
+      }
+
+      const result = await db
+        .collection(collectionName)
+        .deleteOne({ _id: ObjectId.createFromHexString(id) });
+
+      if (result.deletedCount === 0) {
+        res.status(404).json({ error: "Document not found" });
+        return;
+      }
+
+      res.status(200).json(result);
     } else {
       res.status(405).json({ error: "Method not allowed" });
     }
