@@ -2,19 +2,24 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { ObjectId } from "mongodb";
 import { getMongoClient } from "@/lib/mongodb";
 
-export const putHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+export const putHandler = async (
+  req: NextApiRequest,
+  res: NextApiResponse,
+  game: string
+) => {
   const client = await getMongoClient();
   const db = client.db(process.env.DB);
 
-  const { collectionName, id, data } = req.body;
+  const { id, data } = req.body;
   const idString = id.toString();
 
   if (!ObjectId.isValid(id)) {
     res.status(400).json({ error: "Invalid ID" });
     return;
   }
+
   const result = await db
-    .collection(collectionName)
+    .collection(game)
     .replaceOne({ _id: ObjectId.createFromHexString(idString) }, data);
 
   if (result.matchedCount === 0) {

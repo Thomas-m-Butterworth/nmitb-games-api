@@ -1,45 +1,38 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Cors from "cors";
-import {
-  deleteHandler,
-  getHandler,
-  postHandler,
-  patchHandler,
-  putHandler,
-  runMiddleware,
-  validateApiKey,
-} from "./handlers";
+import { getMongoClient } from "@/lib/mongodb";
+import { getHandler } from "./handlers";
 
 const cors = Cors({
-  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+  methods: ["GET"],
   origin: "*",
 });
+
+function runMiddleware(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  fn: Function
+) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+      return resolve(result);
+    });
+  });
+}
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   await runMiddleware(req, res, cors);
-  if (req.method !== "GET" && !validateApiKey(req, res)) {
-    return;
-  }
 
   try {
     switch (req.method) {
       case "GET":
         await getHandler(req, res);
-        break;
-      case "POST":
-        await postHandler(req, res);
-        break;
-      case "DELETE":
-        await deleteHandler(req, res);
-        break;
-      case "PUT":
-        await putHandler(req, res);
-        break;
-      case "PATCH":
-        await patchHandler(req, res);
         break;
       default:
         res.status(405).json({ error: "Method not allowed" });

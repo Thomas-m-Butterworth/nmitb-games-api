@@ -5,18 +5,14 @@ import { schemaMap } from "@/models/schemas";
 
 export const postHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  game: string
 ) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const { game } = req.query;
   const gameData = req.body;
-
-  if (!game || typeof game !== "string") {
-    return res.status(400).json({ error: "Game name is required in the URL" });
-  }
 
   if (!schemaMap[game]) {
     return res.status(400).json({ error: `Invalid collection: ${game}` });

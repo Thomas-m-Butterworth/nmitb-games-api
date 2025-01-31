@@ -4,12 +4,13 @@ import { getMongoClient } from "@/lib/mongodb";
 
 export const deleteHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  game: string
 ) => {
   const client = await getMongoClient();
   const db = client.db(process.env.DB);
 
-  const { collectionName, id } = req.body;
+  const { id } = req.body;
   const idString = id.toString();
 
   if (!ObjectId.isValid(idString)) {
@@ -18,7 +19,7 @@ export const deleteHandler = async (
   }
 
   const result = await db
-    .collection(collectionName)
+    .collection(game)
     .deleteOne({ _id: ObjectId.createFromHexString(idString) });
 
   if (result.deletedCount === 0) {

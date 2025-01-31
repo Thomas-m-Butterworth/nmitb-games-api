@@ -4,12 +4,13 @@ import { getMongoClient } from "@/lib/mongodb";
 
 export const patchHandler = async (
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
+  game: string
 ) => {
   const client = await getMongoClient();
   const db = client.db(process.env.DB);
 
-  const { collectionName, id, data } = req.body;
+  const { id, data } = req.body;
   const idString = id.toString();
 
   if (!ObjectId.isValid(id)) {
@@ -18,7 +19,7 @@ export const patchHandler = async (
   }
 
   const result = await db
-    .collection(collectionName)
+    .collection(game)
     .updateOne({ _id: ObjectId.createFromHexString(idString) }, { $set: data });
 
   if (result.matchedCount === 0) {

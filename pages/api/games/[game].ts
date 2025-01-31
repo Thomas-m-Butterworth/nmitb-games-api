@@ -1,11 +1,15 @@
-import { getMongoClient } from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import Cors from "cors";
-import mongoose from "mongoose";
-import { schemaMap } from "../../../models/schemas";
+import { getMongoClient } from "../../../lib/mongodb";
+import {
+  patchHandler,
+  putHandler,
+  deleteHandler,
+  postHandler,
+} from "./handlers";
 
 const cors = Cors({
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   origin: "*",
 });
 
@@ -31,12 +35,16 @@ export default async function handler(
   await runMiddleware(req, res, cors);
   const { game } = req.query;
 
+  if (typeof game !== "string") {
+    return res.status(400).json({ error: "Game name is required in the URL" });
+  }
+
   if (req.method === "GET") {
     try {
       const client = await getMongoClient();
       const db = client.db(process.env.DB);
 
-      const collection = db.collection(game as string);
+      const collection = db.collection(game);
       const gameData = await collection.find({}).toArray();
 
       res.status(200).json(gameData);
@@ -45,40 +53,13 @@ export default async function handler(
       res.status(500).json({ error: "Internal Server Error" });
     }
   } else if (req.method === "POST") {
-    const gameData = req.body;
-
-    if (!game || typeof game !== "string") {
-      return res
-        .status(400)
-        .json({ error: "Game name is required in the URL" });
-    }
-
-    if (!schemaMap[game]) {
-      return res.status(400).json({ error: `Invalid collection: ${game}` });
-    }
-
-    try {
-      const SchemaModel = mongoose.model(game, schemaMap[game]);
-      await new SchemaModel(gameData).validate();
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      return res
-        .status(400)
-        .json({ error: "Invalid data", details: errorMessage });
-    }
-
-    try {
-      const client = await getMongoClient();
-      const db = client.db(process.env.DB);
-      const result = await db.collection(game).insertOne(gameData);
-
-      res.status(201).json(result);
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      res.status(500).json({ error: "Database error", details: errorMessage });
-    }
+    await postHandler(req, res, game);
+  } else if (req.method === "PUT") {
+    await putHandler(req, res, game);
+  } else if (req.method === "PATCH") {
+    await patchHandler(req, res, game);
+  } else if (req.method === "DELETE") {
+    await deleteHandler(req, res, game);
   } else {
     res.status(405).json({ error: "Method Not Allowed" });
   }
