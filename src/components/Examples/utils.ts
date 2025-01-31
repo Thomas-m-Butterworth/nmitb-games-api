@@ -26,8 +26,8 @@ export const apiExamples: APIExamplesType = {
       description: "Add a game answer to a game collection",
       argType: "game",
       bodyDescription: `{
-    "night": ["sfc", "swamp"],
-    "quote": "Bodily fluids"
+  "night": ["sfc", "swamp"],
+  "quote": "Bodily fluids"
 }`,
       isAuthenticated: true,
       link: "/api/games",
@@ -37,9 +37,35 @@ export const apiExamples: APIExamplesType = {
       apiType: "DELETE",
       description: "Remove a game from a game collection by ID",
       argType: "game",
+      bodyDescription: `{ "id": "big-long-id" }`,
+      isAuthenticated: true,
+      link: "/api/games",
+    },
+    {
+      apiTitle: "PUT game",
+      apiType: "PUT",
+      description: "Replace a game from a game collection",
+      argType: "game",
       bodyDescription: `{
-    "collectionName": "bingo",
-    "id": "835y649365782015875r6205"
+  "id": "big-long-id",
+  "data": {
+    "night": ["scratch", "sfc"],
+    "quote": "Balthazar Dark's joke doesn't land - he looks sad"
+  }
+}`,
+      isAuthenticated: true,
+      link: "/api/games",
+    },
+    {
+      apiTitle: "PATCH game",
+      apiType: "PATCH",
+      description: "Replace a game from a game collection",
+      argType: "game",
+      bodyDescription: `{
+  "id": "big-long-id",
+  "data": {
+    "night": ["scratch", "sfc", "swamp", "matesfest"],
+  }
 }`,
       isAuthenticated: true,
       link: "/api/games",

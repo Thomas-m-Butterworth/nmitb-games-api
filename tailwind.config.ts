@@ -18,7 +18,7 @@ const config: Config = {
   plugins: [],
   purge: {
     content: ["./src/**/*.{js,ts,jsx,tsx}"],
-    safelist: ["justify-between"],
+    safelist: ["justify-between", "text-center"],
   },
 };
 export default config;
