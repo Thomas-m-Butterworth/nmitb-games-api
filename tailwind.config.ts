@@ -16,5 +16,9 @@ const config: Config = {
     },
   },
   plugins: [],
+  purge: {
+    content: ["./src/**/*.{js,ts,jsx,tsx}"],
+    safelist: ["justify-between"],
+  },
 };
 export default config;

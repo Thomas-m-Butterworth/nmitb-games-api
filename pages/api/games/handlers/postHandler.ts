@@ -11,24 +11,20 @@ export const postHandler = async (
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const client = await getMongoClient();
-  const db = client.db(process.env.DB);
-
+  const { game } = req.query;
   const gameData = req.body;
-  const { collectionName, ...data } = gameData;
 
-  if (!schemaMap[collectionName]) {
-    return res
-      .status(400)
-      .json({ error: `Invalid collection: ${collectionName}` });
+  if (!game || typeof game !== "string") {
+    return res.status(400).json({ error: "Game name is required in the URL" });
+  }
+
+  if (!schemaMap[game]) {
+    return res.status(400).json({ error: `Invalid collection: ${game}` });
   }
 
   try {
-    const SchemaModel = mongoose.model(
-      collectionName,
-      schemaMap[collectionName]
-    );
-    await new SchemaModel(data).validate();
+    const SchemaModel = mongoose.model(game, schemaMap[game]);
+    await new SchemaModel(gameData).validate();
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
@@ -38,7 +34,10 @@ export const postHandler = async (
   }
 
   try {
-    const result = await db.collection(collectionName).insertOne(data);
+    const client = await getMongoClient();
+    const db = client.db(process.env.DB);
+    const result = await db.collection(game).insertOne(gameData);
+
     res.status(201).json(result);
   } catch (error: unknown) {
     const errorMessage =
