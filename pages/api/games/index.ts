@@ -4,12 +4,14 @@ import {
   deleteHandler,
   getHandler,
   postHandler,
+  patchHandler,
+  putHandler,
   runMiddleware,
   validateApiKey,
 } from "./handlers";
 
 const cors = Cors({
-  methods: ["GET", "POST", "DELETE"],
+  methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
   origin: "*",
 });
 
@@ -32,6 +34,12 @@ export default async function handler(
         break;
       case "DELETE":
         await deleteHandler(req, res);
+        break;
+      case "PUT":
+        await putHandler(req, res);
+        break;
+      case "PATCH":
+        await patchHandler(req, res);
         break;
       default:
         res.status(405).json({ error: "Method not allowed" });
