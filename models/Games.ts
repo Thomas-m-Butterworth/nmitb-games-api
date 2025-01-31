@@ -6,6 +6,7 @@ import {
   CelebsHeightSchema,
   NameTuneSchema,
   MultipleChoiceSchema,
+  AnagramSchema,
 } from "./schemas";
 
 const GamesSchema = new Schema({
@@ -20,6 +21,7 @@ const GamesSchema = new Schema({
     wrestlemania: { type: [RealOrNotSchema], required: true },
     daylist: { type: [RealOrNotSchema], required: true },
     bingo: { type: [BingoSchema], required: true },
+    anagrams: { type: [AnagramSchema], reuired: true },
   },
 });
 

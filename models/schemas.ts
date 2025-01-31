@@ -1,12 +1,12 @@
 import { Schema } from "mongoose";
 
-const RealOrNotSchema = new Schema({
+export const RealOrNotSchema = new Schema({
   name: { type: String, required: true },
   real: { type: Boolean, required: true },
   band: { type: String },
 });
 
-const BingoSchema = new Schema({
+export const BingoSchema = new Schema({
   night: {
     type: [String],
     enum: ["scratch", "sfc", "matesfest", "swamp", "danpowell"],
@@ -15,7 +15,7 @@ const BingoSchema = new Schema({
   quote: { type: String, required: true },
 });
 
-const WhatsappAgeSchema = new Schema({
+export const WhatsappAgeSchema = new Schema({
   quote: { type: String, required: true },
   sender: { type: String },
   band: { type: String },
@@ -23,7 +23,7 @@ const WhatsappAgeSchema = new Schema({
   emo: { type: Boolean, required: true },
 });
 
-const CelebsHeightSchema = new Schema({
+export const CelebsHeightSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   meters: { type: Number, required: true },
@@ -31,14 +31,14 @@ const CelebsHeightSchema = new Schema({
   image: { type: String },
 });
 
-const NameTuneSchema = new Schema({
+export const NameTuneSchema = new Schema({
   song: { type: String, required: true },
   artist: { type: String, required: true },
   length: { type: String, required: true },
   sound: { type: String, required: true },
 });
 
-const MultipleChoiceSchema = new Schema({
+export const MultipleChoiceSchema = new Schema({
   asker: { type: String, enum: ["thom", "andrew"] },
   question: { type: String, required: true },
   answers: {
@@ -50,11 +50,6 @@ const MultipleChoiceSchema = new Schema({
   correct: { type: String, enum: ["a", "b", "c", "d"], required: true },
 });
 
-export {
-  RealOrNotSchema,
-  BingoSchema,
-  WhatsappAgeSchema,
-  CelebsHeightSchema,
-  NameTuneSchema,
-  MultipleChoiceSchema,
-};
+export const AnagramSchema = new Schema({
+  anagram: { type: String, required: true },
+});
