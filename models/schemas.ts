@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 export const RealOrNotSchema = new Schema({
   name: { type: String, required: true },
@@ -53,3 +53,17 @@ export const MultipleChoiceSchema = new Schema({
 export const AnagramSchema = new Schema({
   anagram: { type: String, required: true },
 });
+
+export const schemaMap: Record<string, mongoose.Schema> = {
+  skankovich: RealOrNotSchema,
+  superNintemo: RealOrNotSchema,
+  celebsHeight: CelebsHeightSchema,
+  whatsappAge: WhatsappAgeSchema,
+  nameThatTune: NameTuneSchema,
+  emopinions: MultipleChoiceSchema,
+  bantz182: MultipleChoiceSchema,
+  wrestlemania: RealOrNotSchema,
+  daylist: RealOrNotSchema,
+  bingo: BingoSchema,
+  anagrams: AnagramSchema,
+};
