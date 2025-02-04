@@ -8,4 +8,5 @@ export interface EndpointLinkProps {
   defaultHref: string;
   apiType: string;
   apiLink: string;
+  isAuthenticated: boolean;
 }

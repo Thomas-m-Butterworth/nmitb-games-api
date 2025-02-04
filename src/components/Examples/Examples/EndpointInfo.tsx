@@ -36,6 +36,7 @@ export const EndpointInfo = ({ examples }: EndpointInfoProps) => {
               defaultHref={defaultHref}
               apiLink={apiLink}
               apiType={apiType}
+              isAuthenticated={isAuthenticated}
             />
           </div>
         );
