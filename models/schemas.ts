@@ -66,4 +66,5 @@ export const schemaMap: Record<string, mongoose.Schema> = {
   daylist: RealOrNotSchema,
   bingo: BingoSchema,
   anagrams: AnagramSchema,
+  hotMulligan: RealOrNotSchema,
 };
